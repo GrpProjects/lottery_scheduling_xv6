@@ -20,6 +20,10 @@ extern void trapret(void);
 
 static void wakeup1(void *chan);
 
+unsigned int lfsr = 0xACE1u; // Initial seed value
+unsigned int bit;
+unsigned int rand(void);
+
 void
 pinit(void)
 {
@@ -47,6 +51,7 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
   p->tickets = 1;
+  p->ticks = 0;
   release(&ptable.lock);
 
   // Allocate kernel stack if possible.
@@ -231,6 +236,8 @@ wait(void)
         p->parent = 0;
         p->name[0] = 0;
         p->killed = 0;
+        p->ticks=0;
+        p->tickets=0;
         release(&ptable.lock);
         return pid;
       }
@@ -263,12 +270,21 @@ scheduler(void)
     // Enable interrupts on this processor.
     sti();
 
+    int totalTickets = calculateTotalTickets();
+    int winningTkt;
+    if (totalTickets!=0) {
+      winningTkt = (rand()%totalTickets)+1;
+    }
+
+    int ticketCount = 0;
+
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
+      ticketCount+=p->tickets;
+      if((p->state != RUNNABLE) || (ticketCount<winningTkt))
         continue;
-
+      
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
@@ -276,6 +292,7 @@ scheduler(void)
       switchuvm(p);
       p->state = RUNNING;
       swtch(&cpu->scheduler, proc->context);
+      p->ticks++;
       switchkvm();
 
       // Process is done running for now.
@@ -447,8 +464,29 @@ procdump(void)
 
 void
 assignStats(struct pstat* ps) {
-  int i;
-  for(i=0, p = ptable.proc; p < &ptable.proc[NPROC]; p++, i++) {
-    
+  int i; struct proc *p;
+  for(i=0, p = ptable.proc; p < &ptable.proc[NPROC]; i++, p++) {
+    if (p->state!=UNUSED) {
+      ps->inuse[i] = 1;
+      ps->tickets[i] = p->tickets;
+      ps->pid[i] = p->pid;
+      ps->ticks[i] = p->ticks;
+    }
   }
+}
+
+int
+calculateTotalTickets(void) {
+  int total = 0;
+  struct proc *p;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    total += p->state==RUNNABLE ? p->tickets : 0;
+  }
+  return total;
+}
+
+unsigned int 
+rand(void) {
+    bit = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5)) & 1;
+    return lfsr = (lfsr >> 1) | (bit << 31);
 }

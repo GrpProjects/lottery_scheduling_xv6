@@ -10,11 +10,10 @@
 int
 main(int argc, char *argv[])
 {
-   struct pstat st;
-
-   check(getpinfo(&st) == 0, "getpinfo");
-   check(getpinfo(NULL) == -1, "getpinfo with bad pointer");
-   check(getpinfo((struct pstat *)1000000) == -1, "getpinfo with bad pointer"); 
+   check(settickets(1) == 0, "settickets to 1");
+   check(settickets(1000000) == 0, "settickets to 1000000");
+   check(settickets(0) == -1, "settickets to 0");
+   check(settickets(-1) == -1, "settickets to < 0");
    printf(1, "Should print 1 then 2");
    exit();
 }

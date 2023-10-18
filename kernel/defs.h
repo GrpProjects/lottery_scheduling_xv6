@@ -112,6 +112,7 @@ int             wait(void);
 void            wakeup(void*);
 void            yield(void);
 void            assignStats(struct pstat*);
+int             calculateTotalTickets(void);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
