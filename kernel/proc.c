@@ -162,6 +162,7 @@ fork(void)
  
   pid = np->pid;
   np->state = RUNNABLE;
+  np->tickets = proc->tickets;
   safestrcpy(np->name, proc->name, sizeof(proc->name));
   return pid;
 }
