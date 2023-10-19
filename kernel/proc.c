@@ -48,6 +48,7 @@ found:
   p->pid = nextpid++;
   p->tickets = 1;
   p->ticks = 0;
+  p->inuse = 1;
   release(&ptable.lock);
 
   // Allocate kernel stack if possible.
@@ -185,6 +186,7 @@ exit(void)
 
   iput(proc->cwd);
   proc->cwd = 0;
+  proc->inuse=0;
 
   acquire(&ptable.lock);
 
@@ -298,7 +300,6 @@ scheduler(void)
       proc = p;
       switchuvm(p);
       p->state = RUNNING;
-      p->inuse = 1;
       swtch(&cpu->scheduler, proc->context);
       switchkvm();
 
