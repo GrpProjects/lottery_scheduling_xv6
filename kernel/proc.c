@@ -260,23 +260,27 @@ void
 scheduler(void)
 {
   struct proc *p;
-  int winningTkt;
-  int ticketCount;
-  int totalTkts;
-
-  srand(552001552);
 
   ptable.proc->tickets=1;
+
+  srand(1337);
+
+  //int check = 1;
   
   for(;;){
     // Enable interrupts on this processor.
     sti();
 
-    totalTkts = calculateTotalTickets();
+    int totalTkts = calculateTotalTickets();
+    int winningTkt;
     if (totalTkts!=0) {
       winningTkt = rand()%(totalTkts);
     }
-    ticketCount = 0;
+    int ticketCount = 0;
+    // if (check) {
+    //   cprintf("winning tkt - %d, total tkts -%d\n", winningTkt, totalTkts);
+    //   check=0;
+    // }
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
@@ -286,11 +290,11 @@ scheduler(void)
       ticketCount+=p->tickets;
       if(ticketCount<=winningTkt)
         continue;
+      //check = 1;
       
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
-      cprintf("winning tkt - %d, ticketcount -%d\n", winningTkt, ticketCount);
       proc = p;
       switchuvm(p);
       p->state = RUNNING;

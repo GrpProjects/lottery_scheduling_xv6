@@ -116,7 +116,7 @@ void            setTickets(int);
 int             calculateTotalTickets(void);
 
 // rand.c
-//unsigned        rand(void);
+unsigned        prand(void);
 void            srand(unsigned int);
 unsigned long   rand(void);
 

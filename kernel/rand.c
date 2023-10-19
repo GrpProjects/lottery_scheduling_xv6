@@ -1,4 +1,4 @@
-// static unsigned random_seed = 1;
+// static unsigned random_seed = 552001;
 
 // #define RANDOM_MAX ((1u << 31u) - 1u)
 // unsigned lcg_parkmiller(unsigned *state)
@@ -34,7 +34,7 @@
 //     return *state = (a > b) ? (a - b) : (a + (N - b));
 // }
 
-// unsigned rand(void) {
+// unsigned prand(void) {
 //     return lcg_parkmiller(&random_seed);
 // }
 
@@ -122,8 +122,8 @@ rand()
     if (mti >= N) { /* generate N words at one time */
         int kk;
 
-        // if (mti == N+1)   /* if sgenrand() has not been called, */
-        //     srand(4357); /* a default initial seed is used   */
+        if (mti == N+1)   /* if sgenrand() has not been called, */
+            srand(4357); /* a default initial seed is used   */
 
         for (kk=0;kk<N-M;kk++) {
             y = (mt[kk]&UPPER_MASK)|(mt[kk+1]&LOWER_MASK);
@@ -147,3 +147,42 @@ rand()
 
     return y;
 }
+
+
+//------------------------------------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------------//
+
+// #define PHI 0x9e3779b9
+
+// static unsigned int Q[4096], c = 362436;
+
+// void srand(unsigned int x)
+// {
+//   int i;
+
+//   Q[0] = x;
+//   Q[1] = x + PHI;
+//   Q[2] = x + PHI + PHI;
+
+//   for (i = 3; i < 4096; i++)
+//     Q[i] = Q[i - 3] ^ Q[i - 2] ^ PHI ^ i;
+// }
+
+// unsigned int rand(void)
+// {
+//   if(sizeof(unsigned long long) != 8){
+//     return 0;
+//   }
+//   unsigned long long t, a = 18782LL;
+//   static unsigned int i = 4095;
+//   unsigned int x, r = 0xfffffffe;
+//   i = (i + 1) & 4095;
+//   t = a * Q[i] + c;
+//   c = (t >> 32);
+//   x = t + c;
+//   if (x < c) {
+//     x++;
+//     c++;
+//   }
+//   return (Q[i] = r - x);
+// }
