@@ -103,9 +103,13 @@ static int (*syscalls[])(void) = {
 [SYS_wait]    sys_wait,
 [SYS_write]   sys_write,
 [SYS_uptime]  sys_uptime,
-[SYS_getreadcount] sys_getreadcount, //mapping of new syscall to the respective handler
+[SYS_getreadcount] sys_getreadcount,
+/* The following code is added by Mahesh(MXA220203) and Mugil()
+** Mapping of two new syscalls (settickets & getpinfo) to their respective handler
+*/
 [SYS_settickets] sys_settickets,
 [SYS_getpinfo] sys_getpinfo
+/* End of code added */
 };
 
 // Called on a syscall trap. Checks that the syscall number (passed via eax)

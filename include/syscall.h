@@ -23,8 +23,12 @@
 #define SYS_sbrk   19
 #define SYS_sleep  20
 #define SYS_uptime 21
-#define SYS_getreadcount 22 //defining new sys call with unique number
+#define SYS_getreadcount 22
+/* The following code is added by Mugil() and Mahesh(MXA220203)
+** Defining two new sys calls settickets and getpinfo with unique number
+*/
 #define SYS_settickets 23
 #define SYS_getpinfo 24
+/* End of code added */
 
 #endif // _SYSCALL_H_

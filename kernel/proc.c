@@ -46,9 +46,14 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+
+  /* The following code is added by Mahesh and netid 
+  ** For newly created process default tickets will be 1 and ticks is 0
+  */
   p->tickets = 1;
   p->ticks = 0;
-  p->inuse = 1;
+  /* End of code added */
+
   release(&ptable.lock);
 
   // Allocate kernel stack if possible.
@@ -159,7 +164,13 @@ fork(void)
  
   pid = np->pid;
   np->state = RUNNABLE;
+
+  /* The following code is added by Mugil and netid 
+  ** Child process should inherit the parent process's tickets
+  */
   np->tickets = proc->tickets;
+  /* End of code added */
+
   safestrcpy(np->name, proc->name, sizeof(proc->name));
   return pid;
 }
@@ -186,7 +197,13 @@ exit(void)
 
   iput(proc->cwd);
   proc->cwd = 0;
+
+  /* The following code is added by Mugil and netid 
+  ** While exiting set inuse to 0 of that exiting process
+  */
   proc->inuse=0;
+  /* End of code added */
+  
 
   acquire(&ptable.lock);
 
@@ -263,8 +280,6 @@ scheduler(void)
 {
   struct proc *p;
 
-  ptable.proc->tickets=1;
-
   srand(1337);
 
   //int check = 1;
@@ -300,6 +315,7 @@ scheduler(void)
       proc = p;
       switchuvm(p);
       p->state = RUNNING;
+      p->inuse = 1;
       swtch(&cpu->scheduler, proc->context);
       switchkvm();
 
@@ -338,7 +354,13 @@ yield(void)
 {
   acquire(&ptable.lock);  //DOC: yieldlock
   proc->state = RUNNABLE;
+
+  /* The following code is added by Mahesh Annamalai and netid MXA220203
+  ** Incrementing the ticks of a process while yielding since time slice in xv6 is 1 sec
+  */
   proc->ticks++;
+  /* End of code added */
+
   sched();
   release(&ptable.lock);
 }
@@ -471,6 +493,9 @@ procdump(void)
   }
 }
 
+/* The following code is added by Mahesh Annamalai and netid MXA220203
+** Assigning the process stats in the pointer argument passed by the user
+*/
 void
 assignStats(struct pstat* ps) {
   int i; struct proc *p;
@@ -483,7 +508,12 @@ assignStats(struct pstat* ps) {
     }
   }
 }
+/* End of code added */
 
+
+/* The following code is added by Mugil and netid
+** Calculating total number of tickets by traversing the process table
+*/
 int
 calculateTotalTickets(void) {
   int total = 0;
@@ -493,3 +523,4 @@ calculateTotalTickets(void) {
   }
   return total;
 }
+/* End of code added */

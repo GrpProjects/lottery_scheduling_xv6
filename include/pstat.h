@@ -1,3 +1,6 @@
+/* The following code is added by Mugil() and Mahesh(MXA220203)
+** Structure of pstat defined here
+*/
 #ifndef _PSTAT_H_
 #define _PSTAT_H_
 #include "param.h"
@@ -8,4 +11,4 @@ struct pstat {
  int ticks[NPROC]; // the number of ticks each process has accumulated
 };
 #endif // _PSTAT_H_
-
+/* End of code added */

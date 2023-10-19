@@ -23,8 +23,12 @@ int sys_unlink(void);
 int sys_wait(void);
 int sys_write(void);
 int sys_uptime(void);
-int sys_getreadcount(void); //defining a new sys call handler for getreadcount sys call
+int sys_getreadcount(void); 
+/* The following code is added by Mugil() and Mahesh(MXA220203)
+** Defining a new sys call handler for settickets and getpinfo
+*/
 int sys_settickets(void);
 int sys_getpinfo(void);
+/* End of code added */
 
 #endif // _SYSFUNC_H_

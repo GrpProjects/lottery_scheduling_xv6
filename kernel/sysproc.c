@@ -90,6 +90,10 @@ sys_uptime(void)
   return xticks;
 }
 
+/* The following code is added by Mugil and netid
+** Implementation of settickets system call
+** Number of tickets should be greater than 0, if not return -1
+*/
 int
 sys_settickets(void)
 {
@@ -101,15 +105,20 @@ sys_settickets(void)
   proc->tickets = n;
   return 0;
 }
+/* End of code added */
 
 
+/* The following code is added by Mahesh Annamalai and netid MXA220203
+** Implementation of getpinfo system call
+** Get the pinfo argument from user and assign it
+*/
 int
 sys_getpinfo(void)
 {
   struct pstat* p = NULL;
-  if((argptr(0, (void*)&p, sizeof(struct pstat)) < 0) || !p)
+  if((argptr(0, (void*)&p, sizeof(struct pstat)) < 0) || !p) //If user passes NULL pointer return -1
     return -1;
-  assignStats(p);
+  assignStats(p);  //Assign the pinfo
   return 0;
 }
-
+/* End of code added */
