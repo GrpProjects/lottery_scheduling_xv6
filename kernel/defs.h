@@ -112,7 +112,13 @@ int             wait(void);
 void            wakeup(void*);
 void            yield(void);
 void            assignStats(struct pstat*);
+void            setTickets(int);
 int             calculateTotalTickets(void);
+
+// rand.c
+//unsigned        rand(void);
+void            srand(unsigned int);
+unsigned long   rand(void);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

@@ -20,10 +20,6 @@ extern void trapret(void);
 
 static void wakeup1(void *chan);
 
-unsigned int lfsr = 0xACE1u; // Initial seed value
-unsigned int bit;
-unsigned int rand(void);
-
 void
 pinit(void)
 {
@@ -237,8 +233,6 @@ wait(void)
         p->parent = 0;
         p->name[0] = 0;
         p->killed = 0;
-        p->ticks=0;
-        p->tickets=0;
         release(&ptable.lock);
         return pid;
       }
@@ -266,34 +260,42 @@ void
 scheduler(void)
 {
   struct proc *p;
+  int winningTkt;
+  int ticketCount;
+  int totalTkts;
 
+  srand(552001552);
+
+  ptable.proc->tickets=1;
+  
   for(;;){
     // Enable interrupts on this processor.
     sti();
 
-    int totalTickets = calculateTotalTickets();
-    int winningTkt;
-    if (totalTickets!=0) {
-      winningTkt = (rand()%totalTickets)+1;
+    totalTkts = calculateTotalTickets();
+    if (totalTkts!=0) {
+      winningTkt = rand()%(totalTkts);
     }
-
-    int ticketCount = 0;
+    ticketCount = 0;
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->state != RUNNABLE)
+        continue;
       ticketCount+=p->tickets;
-      if((p->state != RUNNABLE) || (ticketCount<winningTkt))
+      if(ticketCount<=winningTkt)
         continue;
       
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
+      cprintf("winning tkt - %d, ticketcount -%d\n", winningTkt, ticketCount);
       proc = p;
       switchuvm(p);
       p->state = RUNNING;
+      p->inuse = 1;
       swtch(&cpu->scheduler, proc->context);
-      p->ticks++;
       switchkvm();
 
       // Process is done running for now.
@@ -331,6 +333,7 @@ yield(void)
 {
   acquire(&ptable.lock);  //DOC: yieldlock
   proc->state = RUNNABLE;
+  proc->ticks++;
   sched();
   release(&ptable.lock);
 }
@@ -468,7 +471,7 @@ assignStats(struct pstat* ps) {
   int i; struct proc *p;
   for(i=0, p = ptable.proc; p < &ptable.proc[NPROC]; i++, p++) {
     if (p->state!=UNUSED) {
-      ps->inuse[i] = 1;
+      ps->inuse[i] = p->inuse;
       ps->tickets[i] = p->tickets;
       ps->pid[i] = p->pid;
       ps->ticks[i] = p->ticks;
@@ -484,10 +487,4 @@ calculateTotalTickets(void) {
     total += p->state==RUNNABLE ? p->tickets : 0;
   }
   return total;
-}
-
-unsigned int 
-rand(void) {
-    bit = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5)) & 1;
-    return lfsr = (lfsr >> 1) | (bit << 31);
 }
