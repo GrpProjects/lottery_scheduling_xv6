@@ -288,12 +288,9 @@ scheduler(void)
     // Enable interrupts on this processor.
     sti();
 
-    int totalTkts = calculateTotalTickets();
-    int winningTkt;
-    if (totalTkts!=0) {
-      winningTkt = rand()%(totalTkts);
-    }
-    int ticketCount = 0;
+    long totalTkts = calculateTotalTickets();
+    long winningTkt = random_at_most(totalTkts);
+    long ticketCount = 0;
     // if (check) {
     //   cprintf("winning tkt - %d, total tkts -%d\n", winningTkt, totalTkts);
     //   check=0;
@@ -305,7 +302,7 @@ scheduler(void)
       if(p->state != RUNNABLE)
         continue;
       ticketCount+=p->tickets;
-      if(ticketCount<=winningTkt)
+      if(ticketCount<winningTkt)
         continue;
       //check = 1;
       
@@ -514,9 +511,9 @@ assignStats(struct pstat* ps) {
 /* The following code is added by Mugil and netid
 ** Calculating total number of tickets by traversing the process table
 */
-int
+long
 calculateTotalTickets(void) {
-  int total = 0;
+  long total = 0;
   struct proc *p;
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
     total += p->state==RUNNABLE ? p->tickets : 0;

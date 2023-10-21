@@ -116,7 +116,7 @@ void            wakeup(void*);
 void            yield(void);
 void            assignStats(struct pstat*);
 void            setTickets(int);
-int             calculateTotalTickets(void);
+long            calculateTotalTickets(void);
 /* End of code modified */
 
 
@@ -125,8 +125,9 @@ int             calculateTotalTickets(void);
 ** Defining functions for random generators
 */
 unsigned        prand(void);
-void            srand(unsigned int);
-unsigned long   rand(void);
+void            srand(unsigned long);
+long            random_at_most(long);
+
 /* End of code added */
 
 

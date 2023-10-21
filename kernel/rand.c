@@ -63,13 +63,14 @@
 #define TEMPERING_SHIFT_T(y)  (y << 15)
 #define TEMPERING_SHIFT_L(y)  (y >> 18)
 
+#define RAND_MAX 0x7fffffff
+
 static unsigned long mt[N]; /* the array for the state vector  */
 static int mti=N+1; /* mti==N+1 means mt[N] is not initialized */
 
 /* initializing the array with a NONZERO seed */
 void
-srand(seed)
-    unsigned long seed;	
+srand(unsigned long seed)
 {
     /* setting initial seeds to mt[N] using         */
     /* the generator Line 25 of Table 1 in          */
@@ -80,9 +81,8 @@ srand(seed)
         mt[mti] = (69069 * mt[mti-1]) & 0xffffffff;
 }
 
-
-unsigned long
-rand()
+long /* for integer generation */
+genrand()
 {
     unsigned long y;
     static unsigned long mag01[2]={0x0, MATRIX_A};
@@ -114,7 +114,30 @@ rand()
     y ^= TEMPERING_SHIFT_T(y) & TEMPERING_MASK_C;
     y ^= TEMPERING_SHIFT_L(y);
 
-    return y;
+    // Strip off uppermost bit because we want a long,
+    // not an unsigned long
+    return y & RAND_MAX;
+}
+
+// Assumes 0 <= max <= RAND_MAX
+// Returns in the half-open interval [0, max]
+long random_at_most(long max) {
+  unsigned long
+    // max <= RAND_MAX < ULONG_MAX, so this is okay.
+    num_bins = (unsigned long) max + 1,
+    num_rand = (unsigned long) RAND_MAX + 1,
+    bin_size = num_rand / num_bins,
+    defect   = num_rand % num_bins;
+
+  long x;
+  do {
+   x = genrand();
+  }
+  // This is carefully written not to overflow
+  while (num_rand - defect <= (unsigned long)x);
+
+  // Truncated division is intentional
+  return x/bin_size;
 }
 /* End of code added */
 
