@@ -115,8 +115,9 @@ int             wait(void);
 void            wakeup(void*);
 void            yield(void);
 void            assignStats(struct pstat*);
-void            setTickets(int);
+void            setTicketsForProc(long);
 long            calculateTotalTickets(void);
+extern long     totalTkts;
 /* End of code modified */
 
 
@@ -126,6 +127,7 @@ long            calculateTotalTickets(void);
 */
 unsigned        prand(void);
 void            srand(unsigned long);
+long            rand();
 long            random_at_most(long);
 
 /* End of code added */

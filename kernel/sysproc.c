@@ -102,7 +102,7 @@ sys_settickets(void)
     return -1;
   if (n < 1)
     return -1;
-  proc->tickets = n;
+  setTicketsForProc(n);
   return 0;
 }
 /* End of code added */

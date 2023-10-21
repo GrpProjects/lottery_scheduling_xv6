@@ -82,7 +82,7 @@ srand(unsigned long seed)
 }
 
 long /* for integer generation */
-genrand()
+rand()
 {
     unsigned long y;
     static unsigned long mag01[2]={0x0, MATRIX_A};
@@ -131,7 +131,7 @@ long random_at_most(long max) {
 
   long x;
   do {
-   x = genrand();
+   x = rand();
   }
   // This is carefully written not to overflow
   while (num_rand - defect <= (unsigned long)x);

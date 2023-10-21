@@ -20,6 +20,8 @@ extern void trapret(void);
 
 static void wakeup1(void *chan);
 
+long totalTkts;
+
 void
 pinit(void)
 {
@@ -52,6 +54,7 @@ found:
   */
   p->tickets = 1;
   p->ticks = 0;
+  totalTkts++;
   /* End of code added */
 
   release(&ptable.lock);
@@ -169,6 +172,7 @@ fork(void)
   ** Child process should inherit the parent process's tickets
   */
   np->tickets = proc->tickets;
+  totalTkts += (np->tickets - 1);
   /* End of code added */
 
   safestrcpy(np->name, proc->name, sizeof(proc->name));
@@ -201,7 +205,7 @@ exit(void)
   /* The following code is added by Mugil and netid 
   ** While exiting set inuse to 0 of that exiting process
   */
-  proc->inuse=0;
+  //proc->inuse=0; //It automatically sets to 0 while reinitializing in allocproc
   /* End of code added */
   
 
@@ -218,6 +222,10 @@ exit(void)
         wakeup1(initproc);
     }
   }
+
+  // Mahesh
+  totalTkts -= proc->tickets;
+  proc->tickets=0;
 
   // Jump into the scheduler, never to return.
   proc->state = ZOMBIE;
@@ -252,6 +260,7 @@ wait(void)
         p->parent = 0;
         p->name[0] = 0;
         p->killed = 0;
+        totalTkts-=p->tickets;
         release(&ptable.lock);
         return pid;
       }
@@ -280,21 +289,14 @@ scheduler(void)
 {
   struct proc *p;
 
-  srand(1337);
-
-  //int check = 1;
+  srand(55200155);
   
   for(;;){
     // Enable interrupts on this processor.
     sti();
 
-    long totalTkts = calculateTotalTickets();
-    long winningTkt = random_at_most(totalTkts);
+    long winningTkt =random_at_most(totalTkts);
     long ticketCount = 0;
-    // if (check) {
-    //   cprintf("winning tkt - %d, total tkts -%d\n", winningTkt, totalTkts);
-    //   check=0;
-    // }
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
@@ -304,7 +306,6 @@ scheduler(void)
       ticketCount+=p->tickets;
       if(ticketCount<winningTkt)
         continue;
-      //check = 1;
       
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -398,6 +399,7 @@ sleep(void *chan, struct spinlock *lk)
   // Go to sleep.
   proc->chan = chan;
   proc->state = SLEEPING;
+  totalTkts-=proc->tickets;
   sched();
 
   // Tidy up.
@@ -418,8 +420,10 @@ wakeup1(void *chan)
   struct proc *p;
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-    if(p->state == SLEEPING && p->chan == chan)
+    if(p->state == SLEEPING && p->chan == chan) {
+      totalTkts+=p->tickets;
       p->state = RUNNABLE;
+    }
 }
 
 // Wake up all processes sleeping on chan.
@@ -444,8 +448,10 @@ kill(int pid)
     if(p->pid == pid){
       p->killed = 1;
       // Wake process from sleep if necessary.
-      if(p->state == SLEEPING)
+      if(p->state == SLEEPING) {
+        totalTkts+=p->tickets;
         p->state = RUNNABLE;
+      }
       release(&ptable.lock);
       return 0;
     }
@@ -511,6 +517,13 @@ assignStats(struct pstat* ps) {
 /* The following code is added by Mugil and netid
 ** Calculating total number of tickets by traversing the process table
 */
+void setTicketsForProc(long n){
+  totalTkts -= proc->tickets;
+  proc->tickets = n;
+  totalTkts += n;
+}
+
+
 long
 calculateTotalTickets(void) {
   long total = 0;
