@@ -201,7 +201,7 @@ exit(void)
   /* The following code is added by Mugil and netid 
   ** While exiting set inuse to 0 of that exiting process
   */
-  proc->inuse=0;
+  //proc->inuse=0;
   /* End of code added */
   
 
