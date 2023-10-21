@@ -289,10 +289,7 @@ scheduler(void)
     sti();
 
     int totalTkts = calculateTotalTickets();
-    int winningTkt;
-    if (totalTkts!=0) {
-      winningTkt = rand()%(totalTkts);
-    }
+    int winningTkt = rand()%(totalTkts+1);
     int ticketCount = 0;
     // if (check) {
     //   cprintf("winning tkt - %d, total tkts -%d\n", winningTkt, totalTkts);
@@ -305,7 +302,7 @@ scheduler(void)
       if(p->state != RUNNABLE)
         continue;
       ticketCount+=p->tickets;
-      if(ticketCount<=winningTkt)
+      if(ticketCount<winningTkt)
         continue;
       //check = 1;
       
