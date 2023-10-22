@@ -104,7 +104,7 @@ static int (*syscalls[])(void) = {
 [SYS_write]   sys_write,
 [SYS_uptime]  sys_uptime,
 [SYS_getreadcount] sys_getreadcount,
-/* The following code is added by Mahesh(MXA220203) and Mugil()
+/* The following code is added by Mahesh(MXA220203) and Mugil(MXK230014)
 ** Mapping of two new syscalls (settickets & getpinfo) to their respective handler
 */
 [SYS_settickets] sys_settickets,

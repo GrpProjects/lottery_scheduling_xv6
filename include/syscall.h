@@ -24,7 +24,7 @@
 #define SYS_sleep  20
 #define SYS_uptime 21
 #define SYS_getreadcount 22
-/* The following code is added by Mugil() and Mahesh(MXA220203)
+/* The following code is added by Mugil(MXK230014) and Mahesh(MXA220203)
 ** Defining two new sys calls settickets and getpinfo with unique number
 */
 #define SYS_settickets 23

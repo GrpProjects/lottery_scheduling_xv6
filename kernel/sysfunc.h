@@ -24,7 +24,7 @@ int sys_wait(void);
 int sys_write(void);
 int sys_uptime(void);
 int sys_getreadcount(void); 
-/* The following code is added by Mugil() and Mahesh(MXA220203)
+/* The following code is added by Mugil(MXK230014) and Mahesh(MXA220203)
 ** Defining a new sys call handler for settickets and getpinfo
 */
 int sys_settickets(void);

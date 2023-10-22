@@ -1,7 +1,8 @@
-/* The following code is added by Mugil() and Mahesh(MXA220203)
+/* The following code is added by Mugil(MXK230014) and Mahesh(MXA220203)
 ** MT Pseudo Random Generotor Algorithm
 ** srand(int) -> To seed the generator with initial value
-** rand() -> Generate the random number and returns it. 
+** rand() -> Generate the random number and returns it
+** random_at_most() -> Generate the random number withing max limit and returns it
 */
 
 /* Period parameters */  

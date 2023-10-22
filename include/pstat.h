@@ -1,4 +1,4 @@
-/* The following code is added by Mugil() and Mahesh(MXA220203)
+/* The following code is added by Mugil(MXK230014) and Mahesh(MXA220203)
 ** Structure of pstat defined here
 */
 #ifndef _PSTAT_H_

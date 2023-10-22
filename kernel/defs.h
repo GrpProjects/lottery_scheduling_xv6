@@ -97,7 +97,7 @@ int             piperead(struct pipe*, char*, int);
 int             pipewrite(struct pipe*, char*, int);
 
 // proc.c
-/* The following code is modified by Mahesh(MXA220203) and Mugil()
+/* The following code is modified by Mahesh(MXA220203) and Mugil(MXK230014)
 **  Adding the definition for utility functions
 */
 struct proc*    copyproc(struct proc*);
@@ -115,13 +115,13 @@ int             wait(void);
 void            wakeup(void*);
 void            yield(void);
 void            assignStats(struct pstat*);
-void            setTicketsForProc(long);
-long            calculateTotalTickets(void);
+void            setTicketsForProc(int);
+//long          calculateTotalTickets(void);
 /* End of code modified */
 
 
 // rand.c
-/* The following code is added by Mugil() and Mahesh(MXA220203)
+/* The following code is added by Mugil(MXK230014) and Mahesh(MXA220203)
 ** Defining functions for random generators
 */
 void            srand(unsigned long);

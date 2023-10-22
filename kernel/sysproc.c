@@ -90,19 +90,19 @@ sys_uptime(void)
   return xticks;
 }
 
-/* The following code is added by Mugil and netid
+/* The following code is added by Mugil Suga and netid MXK230014
 ** Implementation of settickets system call
 ** Number of tickets should be greater than 0, if not return -1
 */
 int
 sys_settickets(void)
 {
-  int n;
-  if(argint(0, &n) < 0)
+  int tickets;
+  if(argint(0, &tickets) < 0)
     return -1;
-  if (n < 1)
+  if (tickets < 1)
     return -1;
-  setTicketsForProc(n);
+  setTicketsForProc(tickets);
   return 0;
 }
 /* End of code added */

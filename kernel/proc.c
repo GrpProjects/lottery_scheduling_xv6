@@ -49,7 +49,7 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
 
-  /* The following code is added by Mahesh and netid 
+  /* The following code is added by Mahesh Annamalai and netid MXA220203
   ** For newly created process default tickets will be 1 and ticks is 0
   */
   p->tickets = 1;
@@ -168,8 +168,8 @@ fork(void)
   pid = np->pid;
   np->state = RUNNABLE;
 
-  /* The following code is added by Mugil and netid 
-  ** Child process should inherit the parent process's tickets
+  /* The following code is added by Mahesh Annamalai and netid MXA220203
+  ** Child process should inherit the parent process's tickets and modify totalTkts
   */
   np->tickets = proc->tickets;
   totalTkts += (np->tickets - 1);
@@ -216,9 +216,13 @@ exit(void)
     }
   }
 
-  // Mahesh
+  /* The following code is added by Mugil Suga and netid MXK230014
+  ** While exiting reduce the total tickets and set the proc ticket to 0
+  */
   totalTkts -= proc->tickets;
   proc->tickets=0;
+  /* End of code added */
+
 
   // Jump into the scheduler, never to return.
   proc->state = ZOMBIE;
@@ -281,13 +285,21 @@ scheduler(void)
 {
   struct proc *p;
 
+  /* The following code is added by Mugil Suga and netid MXK230014
+  ** Initial seeding of random generator
+  */
   srand(55200155);
+  /* End of code added */
   
+
+  /* The following code is modified by Mahesh(MXA220203) and Mugil(MXK230014) 
+  ** Changing scheduler from round robin to lottery scheduling
+  */
   for(;;){
     // Enable interrupts on this processor.
     sti();
 
-    long winningTkt = random_at_most(totalTkts);
+    long winningTkt = random_at_most(totalTkts);  //fining winning ticket from random generator
     long ticketCount = 0;
 
     // Loop over process table looking for process to run.
@@ -311,11 +323,12 @@ scheduler(void)
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       proc = 0;
-      break;
+      break;  //added break for finding the next winning ticket
     }
     release(&ptable.lock);
 
   }
+  /* End of code modified */
 }
 
 // Enter scheduler.  Must hold only ptable.lock
@@ -391,7 +404,11 @@ sleep(void *chan, struct spinlock *lk)
   // Go to sleep.
   proc->chan = chan;
   proc->state = SLEEPING;
+  /* The following code is added by Mugil Suga and netid MXK230014
+  ** While sleeping reduce the total tickets to avoid slowness and inconsistencies
+  */
   totalTkts-=proc->tickets;
+  /* End of code added */
   sched();
 
   // Tidy up.
@@ -413,7 +430,11 @@ wakeup1(void *chan)
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->state == SLEEPING && p->chan == chan) {
+      /* The following code is added by Mahesh Annamalai and netid MXA220203
+      ** While waking up from sleep increase the total tickets
+      */
       totalTkts+=p->tickets;
+      /* End of code added */
       p->state = RUNNABLE;
     }
 }
@@ -441,7 +462,11 @@ kill(int pid)
       p->killed = 1;
       // Wake process from sleep if necessary.
       if(p->state == SLEEPING) {
+        /* The following code is added by Mahesh Annamalai and netid MXA220203
+        ** While waking up from sleep increase the total tickets
+        */
         totalTkts+=p->tickets;
+        /* End of code added */
         p->state = RUNNABLE;
       }
       release(&ptable.lock);
@@ -506,23 +531,23 @@ assignStats(struct pstat* ps) {
 /* End of code added */
 
 
-/* The following code is added by Mugil and netid
-** Calculating total number of tickets by traversing the process table
+/* The following code is added by Mugil Suga and netid MXK230014
+** Setting ticket for current process and modify total tickets
 */
-void setTicketsForProc(long n){
+void setTicketsForProc(int tkts){
   totalTkts -= proc->tickets;
-  proc->tickets = n;
-  totalTkts += n;
+  proc->tickets = tkts;
+  totalTkts += tkts;
 }
 
 
-long
-calculateTotalTickets(void) {
-  long total = 0;
-  struct proc *p;
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-    total += p->state==RUNNABLE ? p->tickets : 0;
-  }
-  return total;
-}
+// long
+// calculateTotalTickets(void) {
+//   long total = 0;
+//   struct proc *p;
+//   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+//     total += p->state==RUNNABLE ? p->tickets : 0;
+//   }
+//   return total;
+// }
 /* End of code added */
