@@ -202,13 +202,6 @@ exit(void)
   iput(proc->cwd);
   proc->cwd = 0;
 
-  /* The following code is added by Mugil and netid 
-  ** While exiting set inuse to 0 of that exiting process
-  */
-  //proc->inuse=0; //It automatically sets to 0 while reinitializing in allocproc
-  /* End of code added */
-  
-
   acquire(&ptable.lock);
 
   // Parent might be sleeping in wait().
@@ -260,7 +253,6 @@ wait(void)
         p->parent = 0;
         p->name[0] = 0;
         p->killed = 0;
-        totalTkts-=p->tickets;
         release(&ptable.lock);
         return pid;
       }
@@ -295,7 +287,7 @@ scheduler(void)
     // Enable interrupts on this processor.
     sti();
 
-    long winningTkt =random_at_most(totalTkts);
+    long winningTkt = random_at_most(totalTkts);
     long ticketCount = 0;
 
     // Loop over process table looking for process to run.
@@ -313,13 +305,13 @@ scheduler(void)
       proc = p;
       switchuvm(p);
       p->state = RUNNING;
-      p->inuse = 1;
       swtch(&cpu->scheduler, proc->context);
       switchkvm();
 
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       proc = 0;
+      break;
     }
     release(&ptable.lock);
 
@@ -504,7 +496,7 @@ assignStats(struct pstat* ps) {
   int i; struct proc *p;
   for(i=0, p = ptable.proc; p < &ptable.proc[NPROC]; i++, p++) {
     if (p->state!=UNUSED) {
-      ps->inuse[i] = p->inuse;
+      ps->inuse[i] = 1;
       ps->tickets[i] = p->tickets;
       ps->pid[i] = p->pid;
       ps->ticks[i] = p->ticks;

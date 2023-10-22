@@ -117,7 +117,6 @@ void            yield(void);
 void            assignStats(struct pstat*);
 void            setTicketsForProc(long);
 long            calculateTotalTickets(void);
-extern long     totalTkts;
 /* End of code modified */
 
 
@@ -125,7 +124,6 @@ extern long     totalTkts;
 /* The following code is added by Mugil() and Mahesh(MXA220203)
 ** Defining functions for random generators
 */
-unsigned        prand(void);
 void            srand(unsigned long);
 long            rand();
 long            random_at_most(long);
