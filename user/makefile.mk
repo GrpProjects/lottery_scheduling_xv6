@@ -32,7 +32,8 @@ USER_PROGS := \
 	random\
 	stress_equal\
 	stress_manylow\
-	switch_tickets
+	switch_tickets\
+	graph
 
 USER_PROGS := $(addprefix user/, $(USER_PROGS))
 
