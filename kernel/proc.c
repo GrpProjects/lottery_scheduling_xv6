@@ -430,7 +430,7 @@ wakeup1(void *chan)
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->state == SLEEPING && p->chan == chan) {
-      /* The following code is added by Mahesh Annamalai and netid MXA220203
+      /* The following code is added by Mugil Suga and netid MXK230014
       ** While waking up from sleep increase the total tickets
       */
       totalTkts+=p->tickets;
